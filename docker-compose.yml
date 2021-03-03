@@ -1,0 +1,64 @@
+version: "3"
+services:
+  s2m_api_knowledge:
+    container_name: s2m_api_knowledge
+    image: node:8.12.0
+    volumes:
+      - .:/app/code
+      - ../api-common:/app/api-common
+    ports:
+      - 3122:3122
+    command: bash -c "cd /app/code && touch build.txt && touch commit.txt && npm run build && npm run start"
+    environment:
+      SPRING_CLOUD_CONFIG_URI: "http://s2m_config_server:8888"
+      SPRING_PROFILES_ACTIVE: "localdocker"
+      MONGODB_HOST: "mongodb"
+      S2M_ENV: local
+      S2M_DEV: "true"
+      MARIADB_HOST: "mariadb"
+      PAAS_ENV: 1
+    networks:
+      - dockernet
+
+  mongo:
+    container_name: mongodb
+    image: "mongo:latest"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo_data:/data/db
+      - ../:/dump
+    environment:
+      MONGO_INITDB_DATABASE: "admin"
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "root"
+    networks:
+      - dockernet
+
+  db:
+    container_name: mariadb
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0 --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: am2
+    networks:
+      - dockernet
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - dockernet
+
+networks:
+  dockernet:
+    external:
+      name: dockernet
