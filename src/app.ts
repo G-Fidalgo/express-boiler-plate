@@ -9,6 +9,8 @@ import swaggerUi from 'swagger-ui-express';
 import * as swaggerDocument from './swagger.json';
 import { getV1Routes } from '@routes/v1/index';
 
+const { version, name } = require('../package.json');
+
 dotenv.config();
 
 const app = express();
@@ -29,4 +31,4 @@ app.use(`/express-boiler-plate/v1`, getV1Routes());
 app.use(`/express-boiler-plate/swagger`, swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(parseInt(process.env.APP_PORT!));
-logger.debug(`Server started at url: ${process.env.APP_PORT!}`);
+logger.debug(`${name} version:${version} started at url: ${process.env.APP_PORT!}`);
