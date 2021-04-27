@@ -12,6 +12,7 @@ class Config {
       this.set('APP_PORT', configFromServer.app.port || 3000);
     } catch (error) {
       new Error('An error ocurred while loading configuration from cloud config server');
+      process.exit(1);
     }
   }
 
